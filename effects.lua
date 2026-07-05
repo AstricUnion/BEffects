@@ -5,10 +5,12 @@
 
 
 ---@class beff
----@field inited table<number, BEffect> Inited and therefore spawned effects
+---@field inited table<number, BEffect> Inited and therefore spawned effects on or from server
+---@field initedClient table<number, BEffect> Inited and therefore spawned effects from this client
 ---@field registered table<string, BEffect> Registered classes
 local beff = {}
 beff.inited = {}
+beff.initedClient = {}
 beff.registered = {}
 
 
@@ -16,6 +18,7 @@ beff.registered = {}
 ---@class BEffect
 ---@field Identifier string Identifier of the effect
 ---@field index number Index of effect
+---@field fromServer boolean Is effect spawned from server
 ---@field origin Vector Origin of the effect
 ---@field angles Angle Angles of the effect
 ---@field attachment number Attachment ID of the effect
@@ -206,8 +209,14 @@ if SERVER then
 else
     ---Play this effect
     function BEffect:play()
-        local index = self.index or #beff.inited+1
-        beff.inited[index] = self
+        local index
+        if self.fromServer then
+            index = self.index
+            beff.inited[index] = self
+        else
+            index = #beff.inited+1
+            beff.initedClient[index] = self
+        end
         self.index = index
         self:init()
     end
@@ -217,7 +226,11 @@ else
 
     ---Destroy effect
     function BEffect:destroy()
-        beff.inited[self.index] = nil
+        if self.fromServer then
+            beff.inited[self.index] = nil
+        else
+            beff.initedClient[self.index] = nil
+        end
         self:onDestroy()
         setmetatable(self, nil)
     end
@@ -228,6 +241,7 @@ else
             local class = beff.registered[tbl.Identifier]
             if !class then return end
             local inherited = setmetatable(tbl, class)
+            inherited.fromServer = true
             inherited:play()
         end
         local isEntity = net.readBool()
@@ -250,6 +264,11 @@ else
 
     hook.add("Think", "BModEffectsThink", function()
         for _, v in pairs(beff.inited) do
+            if v:think() == false then
+                v:destroy()
+            end
+        end
+        for _, v in pairs(beff.initedClient) do
             if v:think() == false then
                 v:destroy()
             end
