@@ -11,7 +11,7 @@ ParticleEmmiterPool.emmiters = {}
 ---[CLIENT] Create new particle emmiters pool
 function ParticleEmmiterPool:new()
     local pool = {}
-    for _=1, particle.particleEmittersLeft() do
+    for _=1, particle.particleEmittersLeft() / 2 do
         pool[#pool+1] = particle.create(Vector(), false)
     end
     return setmetatable({ pool = pool }, self)
