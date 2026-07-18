@@ -43,7 +43,7 @@ function BEffect:new()
             Identifier = self.Identifier,
             origin = Vector(), angles = Angle(), attachment = 0,
             flags = 0, hitbox = 0, magnitude = 0, material = 0,
-            normal = Vector(0, 0, 1), radius = 0, scale = 1, start = 0,
+            normal = Vector(0, 0, 1), radius = 0, scale = 1, start = Vector(),
             surfaceProp = 0
         },
         self
@@ -58,14 +58,23 @@ function BEffect:init() end
 ---@return boolean
 function BEffect:think() return true end
 
+---Render hook of effect. Called when the effect should be rendered.
+function BEffect:render() end
+
 
 -- Methods of the effect
 -- (i used abolish-vim btw, very useful plugin to fast replace with case saving)
 -- TODO: make function to generate get/set, and make normal docs solution
 
+---Base function to set value
+function BEffect:set(name, value)
+    if CLIENT and self.index then self:render() end
+    self[name] = value
+end
+
 ---Set origin of the effect
 ---@param origin Vector
-function BEffect:setOrigin(origin) self.origin = origin end
+function BEffect:setOrigin(origin) self:set("origin", origin) end
 
 ---Get origin of the effect
 ---@return Vector origin
@@ -74,7 +83,7 @@ function BEffect:getOrigin() return self.origin end
 
 ---Set angles of the effect
 ---@param angles Angle
-function BEffect:setAngles(angles) self.angles = angles end
+function BEffect:setAngles(angles) self:set("angles", angles) end
 
 ---Get angles of the effect
 ---@return Angle angles
@@ -83,7 +92,7 @@ function BEffect:getAngles() return self.angles end
 
 ---Set attachment of the effect
 ---@param attachment number
-function BEffect:setAttachment(attachment) self.attachment = attachment end
+function BEffect:setAttachment(attachment) self:set("attachment", attachment) end
 
 ---Get attachment of the effect
 ---@return number attachment
@@ -92,7 +101,7 @@ function BEffect:getAttachment() return self.attachment end
 
 ---Set entity of the effect
 ---@param entity Entity
-function BEffect:setEntity(entity) self.entity = entity end
+function BEffect:setEntity(entity) self:set("entity", entity) end
 
 ---Get entity of the effect
 ---@return Entity entity
@@ -101,7 +110,7 @@ function BEffect:getEntity() return self.entity end
 
 ---Set flags of the effect
 ---@param flags number
-function BEffect:setFlags(flags) self.flags = flags end
+function BEffect:setFlags(flags) self:set("flags", flags) end
 
 ---Get flags of the effect
 ---@return number flags
@@ -110,7 +119,7 @@ function BEffect:getFlags() return self.flags end
 
 ---Set hitbox of the effect
 ---@param hitbox number
-function BEffect:setHitbox(hitbox) self.hitbox = hitbox end
+function BEffect:setHitbox(hitbox) self:set("hitbox", hitbox) end
 
 ---Get hitbox of the effect
 ---@return number hitbox
@@ -119,7 +128,7 @@ function BEffect:getHitbox() return self.hitbox end
 
 ---Set magnitude of the effect
 ---@param magnitude number
-function BEffect:setMagnitude(magnitude) self.magnitude = magnitude end
+function BEffect:setMagnitude(magnitude) self:set("magnitude", magnitude) end
 
 ---Get magnitude of the effect
 ---@return number magnitude
@@ -128,7 +137,7 @@ function BEffect:getMagnitude() return self.magnitude end
 
 ---Set material of the effect
 ---@param material number
-function BEffect:setMaterial(material) self.material = material end
+function BEffect:setMaterial(material) self:set("material", material) end
 
 ---Get material of the effect
 ---@return number material
@@ -137,7 +146,7 @@ function BEffect:getMaterial() return self.material end
 
 ---Set normal of the effect
 ---@param normal Vector
-function BEffect:setNormal(normal) self.normal = normal end
+function BEffect:setNormal(normal) self:set("normal", normal) end
 
 ---Get normal of the effect
 ---@return Vector normal
@@ -146,7 +155,7 @@ function BEffect:getNormal() return self.normal end
 
 ---Set radius of the effect
 ---@param radius number
-function BEffect:setRadius(radius) self.radius = radius end
+function BEffect:setRadius(radius) self:set("radius", radius) end
 
 ---Get radius of the effect
 ---@return number radius
@@ -155,7 +164,7 @@ function BEffect:getRadius() return self.radius end
 
 ---Set scale of the effect
 ---@param scale number
-function BEffect:setScale(scale) self.scale = scale end
+function BEffect:setScale(scale) self:set("scale", scale) end
 
 ---Get scale of the effect
 ---@return number scale
@@ -164,7 +173,7 @@ function BEffect:getScale() return self.scale end
 
 ---Set start of the effect
 ---@param start Vector
-function BEffect:setStart(start) self.start = start end
+function BEffect:setStart(start) self:set("start", start) end
 
 ---Get start of the effect
 ---@return Vector start
@@ -173,7 +182,7 @@ function BEffect:getStart() return self.start end
 
 ---Set surfaceProp of the effect
 ---@param surfaceProp number
-function BEffect:setSurfaceProp(surfaceProp) self.surfaceProp = surfaceProp end
+function BEffect:setSurfaceProp(surfaceProp) self:set("surfaceProp", surfaceProp) end
 
 ---Get surfaceProp of the effect
 ---@return number surfaceProp
@@ -272,6 +281,15 @@ else
             if v:think() == false then
                 v:destroy()
             end
+        end
+    end)
+
+    hook.add("RenderOffscreen", "BModEffectsRender", function()
+        for _, v in pairs(beff.inited) do
+            v:render()
+        end
+        for _, v in pairs(beff.initedClient) do
+            v:render()
         end
     end)
 end

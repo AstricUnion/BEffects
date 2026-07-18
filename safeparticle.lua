@@ -4,9 +4,9 @@ if SERVER then return end
 
 ---@class ParticleEmmiterPool
 ---@field pool ParticleEmitter[]
+---@field pool3d ParticleEmitter[]
 local ParticleEmmiterPool = {}
 ParticleEmmiterPool.__index = ParticleEmmiterPool
-ParticleEmmiterPool.emmiters = {}
 
 ---[CLIENT] Create new particle emmiters pool
 function ParticleEmmiterPool:new()
