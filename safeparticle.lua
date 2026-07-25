@@ -4,15 +4,14 @@ if SERVER then return end
 
 ---@class ParticleEmmiterPool
 ---@field pool ParticleEmitter[]
----@field pool3d ParticleEmitter[]
 local ParticleEmmiterPool = {}
 ParticleEmmiterPool.__index = ParticleEmmiterPool
 
 ---[CLIENT] Create new particle emmiters pool
-function ParticleEmmiterPool:new()
+function ParticleEmmiterPool:new(is3D)
     local pool = {}
     for _=1, particle.particleEmittersLeft() / 2 do
-        pool[#pool+1] = particle.create(Vector(), false)
+        pool[#pool+1] = particle.create(Vector(), is3D)
     end
     return setmetatable({ pool = pool }, self)
 end
@@ -52,12 +51,13 @@ end
 function ParticleEmmiterPool:destroy() end
 
 
-particle.pool = ParticleEmmiterPool:new()
+particle.pool = ParticleEmmiterPool:new(false)
+particle.pool3d = ParticleEmmiterPool:new(true)
 particle.__createOld = particle.__createOld or particle.create
 
 ---[CLIENT] Get particle emmiter pool
 ---@return ParticleEmmiterPool
-function particle.create(_, _)
-    return particle.pool
+function particle.create(_, is3D)
+    return is3D and particle.pool3d or particle.pool
 end
 
