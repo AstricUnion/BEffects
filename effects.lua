@@ -223,7 +223,7 @@ else
             index = self.index
             beff.inited[index] = self
         else
-            index = #beff.inited+1
+            index = #beff.initedClient+1
             beff.initedClient[index] = self
         end
         self.index = index
@@ -311,5 +311,13 @@ function beff.create(classname)
     return class:new()
 end
 
+---[SHARED] Get random vector
+---@param m number? Minimum
+---@param n number? Maximum
+function beff.randVector(m, n)
+    m = m or -1
+    n = n or 1
+    return Vector(math.rand(m, n), math.rand(m, n), math.rand(m, n))
+end
 
 return beff
