@@ -68,7 +68,6 @@ function BEffect:render() end
 
 ---Base function to set value
 function BEffect:set(name, value)
-    if CLIENT and self.index then self:render() end
     self[name] = value
 end
 
